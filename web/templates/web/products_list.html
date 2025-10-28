@@ -1,0 +1,68 @@
+{% extends 'web/base.html' %}
+
+{% block title %}المنتجات - نظام المحاسبة والمخزون{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">
+    <i class="bi bi-box"></i> قائمة المنتجات
+</h1>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-list"></i> جميع المنتجات</span>
+        <a href="/admin/inventory/product/add/" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus"></i> إضافة منتج
+        </a>
+    </div>
+    <div class="card-body">
+        {% if products %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>الكود</th>
+                    <th>اسم المنتج</th>
+                    <th>الفئة</th>
+                    <th>سعر التكلفة</th>
+                    <th>سعر البيع</th>
+                    <th>الكمية المتاحة</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td><code>{{ product.code }}</code></td>
+                    <td>{{ product.name_ar }}</td>
+                    <td>{{ product.category.name_ar }}</td>
+                    <td>{{ product.cost_price }}</td>
+                    <td>{{ product.selling_price }}</td>
+                    <td>
+                        {% if product.quantity_on_hand < 50 %}
+                        <span class="badge bg-warning">{{ product.quantity_on_hand }}</span>
+                        {% else %}
+                        <span class="badge bg-success">{{ product.quantity_on_hand }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if product.is_active %}
+                        <span class="badge bg-success">نشط</span>
+                        {% else %}
+                        <span class="badge bg-danger">معطل</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/admin/inventory/product/{{ product.id }}/change/" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted">لا توجد منتجات</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

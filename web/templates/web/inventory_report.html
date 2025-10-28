@@ -1,0 +1,80 @@
+{% extends 'web/base.html' %}
+
+{% block title %}تقرير المخزون - نظام المحاسبة والمخزون{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">
+    <i class="bi bi-boxes"></i> تقرير المخزون
+</h1>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card stat-card">
+            <h5>إجمالي قيمة المخزون</h5>
+            <div class="stat-value">{{ total_value }} ريال</div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card stat-card">
+            <h5>المنتجات منخفضة المخزون</h5>
+            <div class="stat-value">{{ low_stock|length }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-list"></i> جميع المنتجات
+    </div>
+    <div class="card-body">
+        {% if products %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>الكود</th>
+                    <th>اسم المنتج</th>
+                    <th>الفئة</th>
+                    <th>الكمية المتاحة</th>
+                    <th>سعر البيع</th>
+                    <th>القيمة الإجمالية</th>
+                    <th>الحالة</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td><code>{{ product.code }}</code></td>
+                    <td>{{ product.name_ar }}</td>
+                    <td>{{ product.category.name_ar }}</td>
+                    <td>
+                        {% if product.quantity_on_hand < 50 %}
+                        <span class="badge bg-warning">{{ product.quantity_on_hand }}</span>
+                        {% else %}
+                        <span class="badge bg-success">{{ product.quantity_on_hand }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ product.selling_price }}</td>
+                    <td>{{ product.quantity_on_hand|mul:product.selling_price }}</td>
+                    <td>
+                        {% if product in low_stock %}
+                        <span class="badge bg-danger">منخفض</span>
+                        {% else %}
+                        <span class="badge bg-success">جيد</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted">لا توجد منتجات</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// إضافة filter للضرب في الكمية والسعر
+</script>
+{% endblock %}

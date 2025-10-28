@@ -1,0 +1,142 @@
+{% extends 'web/base.html' %}
+
+{% block title %}لوحة التحكم - نظام المحاسبة والمخزون{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">
+    <i class="bi bi-speedometer2"></i> لوحة التحكم
+</h1>
+
+<!-- إحصائيات اليوم -->
+<div class="row mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="card stat-card">
+            <h5>مبيعات اليوم</h5>
+            <div class="stat-value">{{ today_sales.total|default:"0" }} ريال</div>
+            <small class="text-muted">{{ today_sales.count|default:"0" }} فاتورة</small>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+        <div class="card stat-card">
+            <h5>مشتريات اليوم</h5>
+            <div class="stat-value">{{ today_purchases.total|default:"0" }} ريال</div>
+            <small class="text-muted">{{ today_purchases.count|default:"0" }} فاتورة</small>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+        <div class="card stat-card">
+            <h5>إجمالي المنتجات</h5>
+            <div class="stat-value">{{ total_products }}</div>
+            <small class="text-muted">{{ low_stock }} منخفضة المخزون</small>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+        <div class="card stat-card">
+            <h5>الشركة</h5>
+            <div class="stat-value" style="font-size: 1.2rem;">{{ company.name_ar }}</div>
+            <small class="text-muted">{{ branch.name_ar }}</small>
+        </div>
+    </div>
+</div>
+
+<!-- إحصائيات الشهر -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-graph-up"></i> مبيعات الشهر
+            </div>
+            <div class="card-body">
+                <h3 class="text-success">{{ month_sales }} ريال</h3>
+                <p class="text-muted">إجمالي المبيعات منذ بداية الشهر</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-graph-down"></i> مشتريات الشهر
+            </div>
+            <div class="card-body">
+                <h3 class="text-danger">{{ month_purchases }} ريال</h3>
+                <p class="text-muted">إجمالي المشتريات منذ بداية الشهر</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- أحدث الفواتير -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-receipt"></i> أحدث فواتير المبيعات
+            </div>
+            <div class="card-body">
+                {% if recent_sales %}
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>رقم الفاتورة</th>
+                            <th>العميل</th>
+                            <th>المبلغ</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in recent_sales %}
+                        <tr>
+                            <td>{{ sale.invoice_number }}</td>
+                            <td>{{ sale.customer.name }}</td>
+                            <td>{{ sale.total_amount }}</td>
+                            <td>{{ sale.invoice_date }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">لا توجد فواتير مبيعات</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-receipt"></i> أحدث فواتير المشتريات
+            </div>
+            <div class="card-body">
+                {% if recent_purchases %}
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>رقم الفاتورة</th>
+                            <th>المورد</th>
+                            <th>المبلغ</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for purchase in recent_purchases %}
+                        <tr>
+                            <td>{{ purchase.invoice_number }}</td>
+                            <td>{{ purchase.supplier.name_ar }}</td>
+                            <td>{{ purchase.total_amount }}</td>
+                            <td>{{ purchase.invoice_date }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">لا توجد فواتير مشتريات</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
