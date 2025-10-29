@@ -5,13 +5,63 @@ from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
 
-from core.models import Company, Branch
+from core.models import Company, Branch, Customer, Supplier
 from inventory.models import Product
 from accounting.models import PurchaseInvoice
 from pos.models import SalesInvoice
-from reports.models import SalesReport, InventoryReport
+from manufacturing.models import ProductionOrder
 
-@login_required
+def index(request):
+    """الصفحة الرئيسية - بدون تسجيل دخول"""
+    # إذا كان المستخدم مسجل دخول، اذهب إلى لوحة التحكم
+    if request.user.is_authenticated:
+        return dashboard(request)
+    
+    # الحصول على الشركة والفرع الأول
+    company = Company.objects.first()
+    branch = Branch.objects.first() if company else None
+    
+    if not company or not branch:
+        return render(request, 'web/welcome.html')
+    
+    # إحصائيات عامة
+    today = timezone.now().date()
+    
+    today_sales = SalesInvoice.objects.filter(
+        branch=branch,
+        invoice_date=today
+    ).aggregate(
+        total=Sum('total_amount'),
+        count=Count('id')
+    )
+    
+    today_purchases = PurchaseInvoice.objects.filter(
+        branch=branch,
+        invoice_date=today
+    ).aggregate(
+        total=Sum('total_amount'),
+        count=Count('id')
+    )
+    
+    total_products = Product.objects.filter(company=company).count()
+    total_customers = Customer.objects.filter(company=company).count()
+    total_suppliers = Supplier.objects.filter(company=company).count()
+    
+    context = {
+        'company': company,
+        'branch': branch,
+        'today_sales_total': today_sales['total'] or 0,
+        'today_sales_count': today_sales['count'] or 0,
+        'today_purchases_total': today_purchases['total'] or 0,
+        'today_purchases_count': today_purchases['count'] or 0,
+        'total_products': total_products,
+        'total_customers': total_customers,
+        'total_suppliers': total_suppliers,
+    }
+    
+    return render(request, 'web/index.html', context)
+
+@login_required(login_url='admin:login')
 def dashboard(request):
     """لوحة التحكم الرئيسية"""
     user = request.user
