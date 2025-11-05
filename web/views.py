@@ -12,48 +12,59 @@ from pos.models import SalesInvoice
 from manufacturing.models import ProductionOrder
 
 def index(request):
-    """الصفحة الرئيسية - بدون تسجيل دخول"""
+    """الصفحة الرئيسية - بدون تسجيل دخول وبدون متطلبات"""
     # إذا كان المستخدم مسجل دخول، اذهب إلى لوحة التحكم
     if request.user.is_authenticated:
         return dashboard(request)
     
-    # الحصول على الشركة والفرع الأول
+    # الحصول على الشركة والفرع الأول (إذا كانت موجودة)
     company = Company.objects.first()
     branch = Branch.objects.first() if company else None
     
-    if not company or not branch:
-        return render(request, 'web/welcome.html')
+    # إحصائيات عامة (إذا كانت الشركة والفرع موجودة)
+    today_sales_total = 0
+    today_sales_count = 0
+    today_purchases_total = 0
+    today_purchases_count = 0
+    total_products = 0
+    total_customers = 0
+    total_suppliers = 0
     
-    # إحصائيات عامة
-    today = timezone.now().date()
-    
-    today_sales = SalesInvoice.objects.filter(
-        branch=branch,
-        invoice_date=today
-    ).aggregate(
-        total=Sum('total_amount'),
-        count=Count('id')
-    )
-    
-    today_purchases = PurchaseInvoice.objects.filter(
-        branch=branch,
-        invoice_date=today
-    ).aggregate(
-        total=Sum('total_amount'),
-        count=Count('id')
-    )
-    
-    total_products = Product.objects.filter(company=company).count()
-    total_customers = Customer.objects.filter(company=company).count()
-    total_suppliers = Supplier.objects.filter(company=company).count()
+    if company and branch:
+        today = timezone.now().date()
+        
+        today_sales = SalesInvoice.objects.filter(
+            branch=branch,
+            invoice_date=today
+        ).aggregate(
+            total=Sum('total_amount'),
+            count=Count('id')
+        )
+        
+        today_purchases = PurchaseInvoice.objects.filter(
+            branch=branch,
+            invoice_date=today
+        ).aggregate(
+            total=Sum('total_amount'),
+            count=Count('id')
+        )
+        
+        total_products = Product.objects.filter(company=company).count()
+        total_customers = Customer.objects.filter(company=company).count()
+        total_suppliers = Supplier.objects.filter(company=company).count()
+        
+        today_sales_total = today_sales['total'] or 0
+        today_sales_count = today_sales['count'] or 0
+        today_purchases_total = today_purchases['total'] or 0
+        today_purchases_count = today_purchases['count'] or 0
     
     context = {
         'company': company,
         'branch': branch,
-        'today_sales_total': today_sales['total'] or 0,
-        'today_sales_count': today_sales['count'] or 0,
-        'today_purchases_total': today_purchases['total'] or 0,
-        'today_purchases_count': today_purchases['count'] or 0,
+        'today_sales_total': today_sales_total,
+        'today_sales_count': today_sales_count,
+        'today_purchases_total': today_purchases_total,
+        'today_purchases_count': today_purchases_count,
         'total_products': total_products,
         'total_customers': total_customers,
         'total_suppliers': total_suppliers,
@@ -220,3 +231,4 @@ def inventory_report(request):
     }
     
     return render(request, 'web/inventory_report.html', context)
+

@@ -62,6 +62,28 @@
             font-size: 1.1em;
         }
         
+        .welcome-message {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .welcome-message h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+        
+        .welcome-message p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -267,110 +289,126 @@
             <p>إدارة متكاملة لعملك التجاري</p>
         </div>
         
-        <!-- معلومات الشركة -->
-        <div class="company-info">
-            <h2>{{ company.name_ar }}</h2>
-            <p>الفرع: {{ branch.name_ar }}</p>
-        </div>
-        
-        <!-- الإحصائيات -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>📊 مبيعات اليوم</h3>
-                <div class="stat-value">{{ today_sales_count }}</div>
-                <div class="stat-label">فاتورة</div>
-                <div class="stat-value" style="font-size: 1.5em; color: #48bb78;">{{ today_sales_total|floatformat:2 }} ر.س</div>
+        {% if company and branch %}
+            <!-- معلومات الشركة -->
+            <div class="company-info">
+                <h2>{{ company.name_ar }}</h2>
+                <p>الفرع: {{ branch.name_ar }}</p>
             </div>
             
-            <div class="stat-card">
-                <h3>🛒 مشتريات اليوم</h3>
-                <div class="stat-value">{{ today_purchases_count }}</div>
-                <div class="stat-label">فاتورة</div>
-                <div class="stat-value" style="font-size: 1.5em; color: #ed8936;">{{ today_purchases_total|floatformat:2 }} ر.س</div>
+            <!-- الإحصائيات -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>📊 مبيعات اليوم</h3>
+                    <div class="stat-value">{{ today_sales_count }}</div>
+                    <div class="stat-label">فاتورة</div>
+                    <div class="stat-value" style="font-size: 1.5em; color: #48bb78;">{{ today_sales_total|floatformat:2 }} ر.س</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>🛒 مشتريات اليوم</h3>
+                    <div class="stat-value">{{ today_purchases_count }}</div>
+                    <div class="stat-label">فاتورة</div>
+                    <div class="stat-value" style="font-size: 1.5em; color: #ed8936;">{{ today_purchases_total|floatformat:2 }} ر.س</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>📦 المنتجات</h3>
+                    <div class="stat-value">{{ total_products }}</div>
+                    <div class="stat-label">منتج</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>👥 العملاء</h3>
+                    <div class="stat-value">{{ total_customers }}</div>
+                    <div class="stat-label">عميل</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>🏭 الموردين</h3>
+                    <div class="stat-value">{{ total_suppliers }}</div>
+                    <div class="stat-label">مورد</div>
+                </div>
             </div>
-            
-            <div class="stat-card">
-                <h3>📦 المنتجات</h3>
-                <div class="stat-value">{{ total_products }}</div>
-                <div class="stat-label">منتج</div>
+        {% else %}
+            <!-- رسالة الترحيب عند عدم وجود بيانات -->
+            <div class="welcome-message">
+                <h2>🎉 أهلاً وسهلاً!</h2>
+                <p>مرحباً بك في نظام المحاسبة والمخزون ونقطة البيع</p>
+                <p>البرنامج جاهز للاستخدام. يمكنك البدء بإضافة بيانات شركتك من خلال لوحة التحكم الإدارية.</p>
+                <div class="btn-group" style="margin-top: 20px;">
+                    <a href="/admin/" class="btn btn-primary">🔐 الذهاب إلى لوحة التحكم</a>
+                </div>
             </div>
-            
-            <div class="stat-card">
-                <h3>👥 العملاء</h3>
-                <div class="stat-value">{{ total_customers }}</div>
-                <div class="stat-label">عميل</div>
-            </div>
-            
-            <div class="stat-card">
-                <h3>🏭 الموردين</h3>
-                <div class="stat-value">{{ total_suppliers }}</div>
-                <div class="stat-label">مورد</div>
-            </div>
-        </div>
+        {% endif %}
         
         <!-- الخيارات السريعة -->
         <div class="quick-links">
             <h2>الخيارات السريعة</h2>
             <div class="btn-group">
                 <a href="/admin/" class="btn btn-primary">🔐 لوحة التحكم</a>
-                <a href="/web/dashboard/" class="btn btn-secondary">📊 لوحة المعلومات</a>
+                {% if company and branch %}
+                    <a href="/web/dashboard/" class="btn btn-secondary">📊 لوحة المعلومات</a>
+                {% endif %}
                 <a href="/api/v1/" class="btn btn-info">🔌 واجهة برمجية</a>
             </div>
         </div>
         
         <!-- الإجراءات الرئيسية -->
-        <div style="margin-top: 50px;">
-            <h2 style="color: white; text-align: center; margin-bottom: 30px;">الإجراءات الرئيسية</h2>
-            <div class="actions-grid">
-                <a href="/admin/pos/salesinvoice/add/" class="action-btn">
-                    <i>💳</i>
-                    <h3>فاتورة مبيعات جديدة</h3>
-                    <p>إنشاء فاتورة بيع جديدة</p>
-                </a>
-                
-                <a href="/admin/accounting/purchaseinvoice/add/" class="action-btn">
-                    <i>📥</i>
-                    <h3>فاتورة شراء جديدة</h3>
-                    <p>إنشاء فاتورة شراء جديدة</p>
-                </a>
-                
-                <a href="/admin/inventory/product/add/" class="action-btn">
-                    <i>📦</i>
-                    <h3>منتج جديد</h3>
-                    <p>إضافة منتج جديد للمخزون</p>
-                </a>
-                
-                <a href="/admin/manufacturing/productionorder/add/" class="action-btn">
-                    <i>🏭</i>
-                    <h3>أمر إنتاج جديد</h3>
-                    <p>إنشاء أمر إنتاج جديد</p>
-                </a>
-                
-                <a href="/admin/core/customer/add/" class="action-btn">
-                    <i>👤</i>
-                    <h3>عميل جديد</h3>
-                    <p>إضافة عميل جديد</p>
-                </a>
-                
-                <a href="/admin/core/supplier/add/" class="action-btn">
-                    <i>🏢</i>
-                    <h3>مورد جديد</h3>
-                    <p>إضافة مورد جديد</p>
-                </a>
-                
-                <a href="/web/sales-report/" class="action-btn">
-                    <i>📈</i>
-                    <h3>تقرير المبيعات</h3>
-                    <p>عرض تقارير المبيعات</p>
-                </a>
-                
-                <a href="/web/inventory-report/" class="action-btn">
-                    <i>📊</i>
-                    <h3>تقرير المخزون</h3>
-                    <p>عرض تقارير المخزون</p>
-                </a>
+        {% if company and branch %}
+            <div style="margin-top: 50px;">
+                <h2 style="color: white; text-align: center; margin-bottom: 30px;">الإجراءات الرئيسية</h2>
+                <div class="actions-grid">
+                    <a href="/admin/pos/salesinvoice/add/" class="action-btn">
+                        <i>💳</i>
+                        <h3>فاتورة مبيعات جديدة</h3>
+                        <p>إنشاء فاتورة بيع جديدة</p>
+                    </a>
+                    
+                    <a href="/admin/accounting/purchaseinvoice/add/" class="action-btn">
+                        <i>📥</i>
+                        <h3>فاتورة شراء جديدة</h3>
+                        <p>إنشاء فاتورة شراء جديدة</p>
+                    </a>
+                    
+                    <a href="/admin/inventory/product/add/" class="action-btn">
+                        <i>📦</i>
+                        <h3>منتج جديد</h3>
+                        <p>إضافة منتج جديد للمخزون</p>
+                    </a>
+                    
+                    <a href="/admin/manufacturing/productionorder/add/" class="action-btn">
+                        <i>🏭</i>
+                        <h3>أمر إنتاج جديد</h3>
+                        <p>إنشاء أمر إنتاج جديد</p>
+                    </a>
+                    
+                    <a href="/admin/core/customer/add/" class="action-btn">
+                        <i>👤</i>
+                        <h3>عميل جديد</h3>
+                        <p>إضافة عميل جديد</p>
+                    </a>
+                    
+                    <a href="/admin/core/supplier/add/" class="action-btn">
+                        <i>🏢</i>
+                        <h3>مورد جديد</h3>
+                        <p>إضافة مورد جديد</p>
+                    </a>
+                    
+                    <a href="/web/sales-report/" class="action-btn">
+                        <i>📈</i>
+                        <h3>تقرير المبيعات</h3>
+                        <p>عرض تقارير المبيعات</p>
+                    </a>
+                    
+                    <a href="/web/inventory-report/" class="action-btn">
+                        <i>📊</i>
+                        <h3>تقرير المخزون</h3>
+                        <p>عرض تقارير المخزون</p>
+                    </a>
+                </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 </body>
 </html>
